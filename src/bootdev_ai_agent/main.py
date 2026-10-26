@@ -12,7 +12,10 @@ if not api_key:
     raise RuntimeError("api_key is missing")
 
 parser = argparse.ArgumentParser(description="Chatbot")
+
 parser.add_argument("user_prompt", type=str, help="User prompt")
+parser.add_argument("--verbose", action="store_true", required=False, help="Enable verbose output")
+
 args = parser.parse_args()
 
 client = OpenAI(
@@ -35,9 +38,13 @@ response = client.chat.completions.create(
 if not response.usage:
     raise RuntimeError(f"API error: {response}")
 
-print(f"""
-    Prompt tokens: {response.usage.prompt_tokens}
-    Response tokens: {response.usage.completion_tokens}
-    """)
+output_lines = []
+
+if args.verbose:
+    output_lines.append(f"User prompt: {args.user_prompt}")
+    output_lines.append(f"Prompt tokens: {response.usage.prompt_tokens}")
+    output_lines.append(f"Response tokens: {response.usage.completion_tokens}")
+
+print("\n".join(output_lines))
 
 print(response.choices[0].message.content)
