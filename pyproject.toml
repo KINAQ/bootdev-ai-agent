@@ -1,0 +1,20 @@
+[project]
+name = "bootdev-ai-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "KINAQ", email = "welcome@atlasgeha.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "openai==2.44.0",
+    "python-dotenv==1.1.0",
+]
+
+[project.scripts]
+bootdev-ai-agent = "bootdev_ai_agent:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
