@@ -12,7 +12,21 @@ def get_files_info(working_directory: str, directory: str = ".") -> str:
         if not os.path.isdir(target_dir):
             return f'Error: "{directory}" is not a directory'
 
-        return f"Success: {directory} is within the working directory"
+        dir_contents = os.listdir(target_dir)
+
+        print(dir_contents)
+
+        result = []
+        for i in dir_contents:
+            full_path = os.path.join(target_dir, i)
+
+            try:
+                result.append(f"{i}: file_size={os.path.getsize(full_path)}, is_dir={os.path.isdir(full_path)}")
+
+            except Exception as e:  # noqa: BLE001
+                result.append(f"Error: Could not read {i} ({e})")
+
+        return "\n".join(result)
 
     except Exception as e:  # noqa: BLE001
         return f"Error: {e}"
