@@ -1,10 +1,13 @@
 import os
 
+from helpers.get_file_paths import get_file_paths
+
 
 def get_files_info(working_directory: str, directory: str = ".") -> str:
     try:
-        absolute_path = os.path.abspath(working_directory)
-        target_dir = os.path.normpath(os.path.join(absolute_path, directory))
+
+        absolute_path, target_dir = get_file_paths(working_directory, file_path)
+
 
         if os.path.commonpath([absolute_path, target_dir]) != absolute_path:
             return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'

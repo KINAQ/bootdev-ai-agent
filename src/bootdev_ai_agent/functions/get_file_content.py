@@ -1,15 +1,14 @@
 import os
 
 from config import FILE_CHARACTER_LIMIT
+from helpers.get_file_paths import get_file_paths
 
 
 def get_file_content(working_directory: str, file_path: str) -> str:
 
     try:
 
-        abs_working = os.path.abspath(working_directory)
-        combined = os.path.join(working_directory, file_path)
-        abs_file = os.path.abspath(combined)
+        abs_working, abs_file = get_file_paths(working_directory, file_path)
 
         if os.path.commonpath([abs_working, abs_file]) != abs_working:
             return f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
