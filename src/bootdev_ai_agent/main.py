@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
+from prompts import system_prompt
 
 load_dotenv()
 api_key = os.environ.get("OPENROUTER_API_KEY")
@@ -25,6 +26,10 @@ client = OpenAI(
 
 messages: list[ChatCompletionMessageParam] = [
     {
+        "role": "system",
+        "content": system_prompt
+    },
+    {
         "role": "user",
         "content": args.user_prompt,
     }
@@ -33,6 +38,7 @@ messages: list[ChatCompletionMessageParam] = [
 response = client.chat.completions.create(
     model="google/gemini-2.5-flash",
     messages=messages,
+    temperature=0,
 )
 
 if not response.usage:
