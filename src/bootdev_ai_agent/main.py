@@ -1,6 +1,8 @@
 import argparse
+import json
 import os
 
+from call_function import available_functions
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
@@ -39,6 +41,7 @@ response = client.chat.completions.create(
     model="google/gemini-2.5-flash",
     messages=messages,
     temperature=0,
+    tools=available_functions,
 )
 
 if not response.usage:
@@ -53,4 +56,12 @@ if args.verbose:
 
 print("\n".join(output_lines))
 
-print(response.choices[0].message.content)
+message = response.choices[0].message
+
+print(message.content)
+
+tool_calls = getattr(message, "tool_calls", None) or []
+
+for call in tool_calls:
+    function_args = json.loads(call.function.arguments or "{}")
+    print(f"Calling function: {call.function.name}({function_args})")
