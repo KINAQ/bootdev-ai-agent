@@ -3,6 +3,31 @@ import os
 from helpers.get_file_paths import get_file_paths
 
 
+schema_write_file = {
+    "type": "function",
+    "function": {
+        "name": "write_file",
+        "description": "Use this tool to create or overwrite the content of a file at a specified file path.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "The filepath relative to the working directory, e. g. `my_folder/file.txt`.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "The contents of the file as a string."
+                },
+            },
+            "required": [
+                "file_path",
+                "content",
+            ],
+        },
+    },
+}
+
 def write_file(working_directory: str, file_path: str, content: str) -> str:
 
     try:

@@ -3,6 +3,25 @@ import os
 from config import FILE_CHARACTER_LIMIT
 from helpers.get_file_paths import get_file_paths
 
+schema_get_file_content = {
+    "type": "function",
+    "function": {
+        "name": "get_file_content",
+        "description": "Use this tool to receive the contents of a specified file as text.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "The filepath relative to the working directory, e. g. `my_folder/file.txt`.",
+                },
+            },
+            "required": [
+                "file_path",
+            ],
+        },
+    },
+}
 
 def get_file_content(working_directory: str, file_path: str) -> str:
 
