@@ -25,7 +25,7 @@ schema_get_files_info = {
 def get_files_info(working_directory: str, directory: str = ".") -> str:
     try:
 
-        absolute_path, target_dir = get_file_paths(working_directory, file_path)
+        absolute_path, target_dir = get_file_paths(working_directory, directory)
 
 
         if os.path.commonpath([absolute_path, target_dir]) != absolute_path:

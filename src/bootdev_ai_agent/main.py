@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 
-from call_function import available_functions
+from call_function import available_functions, call_function
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
@@ -63,5 +63,10 @@ print(message.content)
 tool_calls = getattr(message, "tool_calls", None) or []
 
 for call in tool_calls:
-    function_args = json.loads(call.function.arguments or "{}")
-    print(f"Calling function: {call.function.name}({function_args})")
+    call_result = call_function(call, verbose=args.verbose)
+    result_content = call_result["content"]
+    if not result_content:
+        raise Exception("Empty tool call result returned.")
+
+    if args.verbose:
+        print(f"-> {result_content}")
