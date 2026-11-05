@@ -1,8 +1,10 @@
 import argparse
 import json
 import os
+import sys
 
 from call_function import available_functions, call_function
+from config import MAX_LOOP_ITERATIONS
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
@@ -37,36 +39,58 @@ messages: list[ChatCompletionMessageParam] = [
     }
 ]
 
-response = client.chat.completions.create(
-    model="google/gemini-2.5-flash",
-    messages=messages,
-    temperature=0,
-    tools=available_functions,
-)
+for _ in range (MAX_LOOP_ITERATIONS):
 
-if not response.usage:
-    raise RuntimeError(f"API error: {response}")
+    response = client.chat.completions.create(
+        model="google/gemini-2.5-flash",
+        messages=messages,
+        temperature=0,
+        tools=available_functions,
+    )
 
-output_lines = []
+    if not response.usage:
+        raise RuntimeError(f"API error: {response}")
 
-if args.verbose:
-    output_lines.append(f"User prompt: {args.user_prompt}")
-    output_lines.append(f"Prompt tokens: {response.usage.prompt_tokens}")
-    output_lines.append(f"Response tokens: {response.usage.completion_tokens}")
-
-print("\n".join(output_lines))
-
-message = response.choices[0].message
-
-print(message.content)
-
-tool_calls = getattr(message, "tool_calls", None) or []
-
-for call in tool_calls:
-    call_result = call_function(call, verbose=args.verbose)
-    result_content = call_result["content"]
-    if not result_content:
-        raise Exception("Empty tool call result returned.")
+    output_lines = []
 
     if args.verbose:
-        print(f"-> {result_content}")
+        output_lines.append(f"User prompt: {args.user_prompt}")
+        output_lines.append(f"Prompt tokens: {response.usage.prompt_tokens}")
+        output_lines.append(f"Response tokens: {response.usage.completion_tokens}")
+
+    print("\n".join(output_lines))
+
+    message = response.choices[0].message
+
+    message_dict = message.model_dump()
+
+    message_content = message_dict.get("content")
+
+    assistant_message: ChatCompletionMessageParam = {
+        "role": "assistant",
+        "content": message_content,
+    }
+
+    if message_dict.get("tool_calls"):
+        assistant_message["tool_calls"] = message_dict["tool_calls"]
+    else:
+        print(assistant_message["content"])
+        sys.exit(0)
+
+    messages.append(assistant_message)
+
+    tool_calls = getattr(message, "tool_calls", None) or []
+
+    for call in tool_calls:
+        call_result = call_function(call, verbose=args.verbose)
+        result_content = call_result["content"]
+        if not result_content:
+            raise Exception("Empty tool call result returned.")
+
+        messages.append(call_result)
+
+        if args.verbose:
+            print(f"-> {result_content}")
+
+    if _ == MAX_LOOP_ITERATIONS:
+        sys.exit(f"maximum amount of iterations reached: {_}")
